@@ -16,10 +16,11 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import './App.css'
+import YoutubeEmbed from './YoutubeEmbed.jsx'
 
 const STORAGE_KEY = 'rank-list-entries'
 
-function SortableEntry({ entry, index, onDelete }) {
+function SortableEntry({ entry, index, onDelete, onEdit }) {
   const {
     attributes,
     listeners,
@@ -86,7 +87,8 @@ function SortableEntry({ entry, index, onDelete }) {
           className="entry-yt"
           onClick={(e) => e.stopPropagation()}
         >
-          <a
+          <YoutubeEmbed link={entry.youtube} />
+          {/* <a
             href={entry.youtube}
             target="_blank"
             rel="noopener noreferrer"
@@ -98,9 +100,25 @@ function SortableEntry({ entry, index, onDelete }) {
               loading="lazy"
               onError={(e) => { e.target.style.display = 'none' }}
             />
-          </a>
+          </a> */}
         </div>
       )}
+
+      {/* Edit button */}
+      <button
+        className="edit-btn"
+        onPointerDown={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          e.stopPropagation()
+          onEdit(entry)
+        }}
+        title="Edit entry"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+        </svg>
+      </button>
 
       {/* Delete button */}
       <button
@@ -193,6 +211,79 @@ function AddEntryForm({ onAdd }) {
   )
 }
 
+function EditEntryForm({ entry, onSave, onCancel }) {
+  const [name, setName] = useState(entry.name)
+  const [youtube, setYoutube] = useState(entry.youtube || '')
+  const [image, setImage] = useState(entry.image || '')
+  const [error, setError] = useState('')
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    const trimmedName = name.trim()
+    if (!trimmedName) {
+      setError('Name is required')
+      return
+    }
+    onSave({
+      id: entry.id,
+      name: trimmedName,
+      youtube: youtube.trim() || undefined,
+      image: image.trim() || undefined,
+    })
+  }
+
+  return (
+    <form className="edit-form" onSubmit={handleSubmit}>
+      <h2>Edit Entry</h2>
+      <div className="form-fields">
+        <div className="form-group">
+          <label htmlFor="edit-name">Name *</label>
+          <input
+            id="edit-name"
+            type="text"
+            placeholder="Enter name..."
+            value={name}
+            onChange={(e) => {
+              setName(e.target.value)
+              if (error) setError('')
+            }}
+            autoFocus
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="edit-youtube">YouTube Link</label>
+          <input
+            id="edit-youtube"
+            type="text"
+            placeholder="https://youtube.com/..."
+            value={youtube}
+            onChange={(e) => setYoutube(e.target.value)}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="edit-image">Image URL</label>
+          <input
+            id="edit-image"
+            type="text"
+            placeholder="https://..."
+            value={image}
+            onChange={(e) => setImage(e.target.value)}
+          />
+        </div>
+      </div>
+      {error && <p className="error-message">{error}</p>}
+      <div className="edit-form-actions">
+        <button type="button" className="edit-cancel-btn" onClick={onCancel}>
+          Cancel
+        </button>
+        <button type="submit" className="edit-save-btn">
+          Save Changes
+        </button>
+      </div>
+    </form>
+  )
+}
+
 function ConfirmModal({ isOpen, title, message, onConfirm, onCancel }) {
   if (!isOpen) return null
 
@@ -224,6 +315,7 @@ export default function App() {
     }
   })
   const [showModal, setShowModal] = useState(false)
+  const [editingEntry, setEditingEntry] = useState(null)
 
   // Persist entries to localStorage whenever they change
   useEffect(() => {
@@ -243,6 +335,14 @@ export default function App() {
 
   const handleDelete = useCallback((id) => {
     setEntries((prev) => prev.filter((entry) => entry.id !== id))
+  }, [])
+
+  const handleEdit = useCallback((updatedEntry) => {
+    setEntries((prev) =>
+      prev.map((entry) =>
+        entry.id === updatedEntry.id ? { ...entry, ...updatedEntry } : entry
+      )
+    )
   }, [])
 
   const handleDragEnd = useCallback(
@@ -310,6 +410,7 @@ export default function App() {
                     entry={entry}
                     index={index}
                     onDelete={handleDelete}
+                    onEdit={() => setEditingEntry(entry)}
                   />
                 ))}
               </div>
@@ -328,6 +429,21 @@ export default function App() {
         onConfirm={handleReset}
         onCancel={() => setShowModal(false)}
       />
+
+      {editingEntry && (
+        <div className="edit-modal-overlay" onClick={() => setEditingEntry(null)}>
+          <div className="edit-modal" onClick={(e) => e.stopPropagation()}>
+            <EditEntryForm
+              entry={editingEntry}
+              onSave={(updated) => {
+                handleEdit(updated)
+                setEditingEntry(null)
+              }}
+              onCancel={() => setEditingEntry(null)}
+            />
+          </div>
+        </div>
+      )}
     </div>
   )
 }

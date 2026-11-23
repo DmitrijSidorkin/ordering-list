@@ -1,0 +1,6 @@
+.video-responsive{
+  flex-grow: 1;
+  width: 360px;
+  border-radius: 8px;
+  overflow: hidden;
+}
