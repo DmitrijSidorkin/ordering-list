@@ -305,14 +305,13 @@ export default function App() {
   })
   const [showModal, setShowModal] = useState(false)
   const [editingEntry, setEditingEntry] = useState(null)
+  const [entriesPerColumn, setEntriesPerColumn] = useState(8)
 
-  const COLUMNS = 8
-
-  // Split entries into columns of COLUMNS entries each
+  // Split entries into columns of entriesPerColumn entries each
   const columns = (() => {
     const result = []
-    for (let i = 0; i < entries.length; i += COLUMNS) {
-      result.push(entries.slice(i, i + COLUMNS))
+    for (let i = 0; i < entries.length; i += entriesPerColumn) {
+      result.push(entries.slice(i, i + entriesPerColumn))
     }
     return result
   })()
@@ -381,6 +380,18 @@ export default function App() {
         <p className="subtitle">
           Add entries and drag to reorder. Numbers update automatically.
         </p>
+        <div className="settings-control">
+          <label htmlFor="entries-per-column">Entries per column:</label>
+          <select
+            id="entries-per-column"
+            value={entriesPerColumn}
+            onChange={(e) => setEntriesPerColumn(Number(e.target.value))}
+          >
+            {[2, 4, 6, 8, 10, 12, 16, 20, 24].map((n) => (
+              <option key={n} value={n}>{n}</option>
+            ))}
+          </select>
+        </div>
       </header>
 
       <AddEntryForm onAdd={handleAdd} />
@@ -408,7 +419,7 @@ export default function App() {
                   <>
                   <div key={colIndex} className="entry-column">
                     {column.map((entry, idx) => {
-                      const globalIndex = colIndex * COLUMNS + idx
+                      const globalIndex = colIndex * entriesPerColumn + idx
                       return (
                         <SortableEntry
                           key={entry.id}
@@ -420,7 +431,7 @@ export default function App() {
                       )
                     })}
                   </div>
-                  {column.length === 8 ? (colIndex % 2 === 0 ? (<p className='separator-line-vertical'></p>) : (<p className='separator-line-horizontal'></p>)): console.log(column.length)}
+                  {entries.length / entriesPerColumn > colIndex+1 ? (colIndex % 2 === 0 ? (<p className='separator-line-vertical'></p>) : (<p className='separator-line-horizontal'></p>)): console.log(column.length)}
                   </>
                 ))}
               </div>

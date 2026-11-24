@@ -38,6 +38,46 @@ body {
   font-size: 1rem;
 }
 
+/* Settings control - top right dropdown */
+.app-header {
+  position: relative;
+}
+
+.settings-control {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #16161a;
+  border: 1px solid #26262c;
+  border-radius: 10px;
+  padding: 0.5rem 0.75rem;
+}
+
+.settings-control label {
+  font-size: 0.8125rem;
+  color: #a1a1aa;
+  white-space: nowrap;
+}
+
+.settings-control select {
+  padding: 0.25rem 0.5rem;
+  border: 1.5px solid #2e2e36;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  background: #1c1c22;
+  color: #e4e4e7;
+  cursor: pointer;
+  outline: none;
+}
+
+.settings-control select:focus {
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+}
+
 /* Form styles */
 .add-form {
   background: #16161a;
