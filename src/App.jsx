@@ -88,23 +88,11 @@ function SortableEntry({ entry, index, onDelete, onEdit }) {
           onClick={(e) => e.stopPropagation()}
         >
           <YoutubeEmbed link={entry.youtube} />
-          {/* <a
-            href={entry.youtube}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <img
-              src={`https://img.youtube.com/vi/${ytId}/hqdefault.jpg`}
-              alt=""
-              loading="lazy"
-              onError={(e) => { e.target.style.display = 'none' }}
-            />
-          </a> */}
         </div>
       )}
 
       {/* Edit button */}
+      <div className='entry-buttons'>
       <button
         className="edit-btn"
         onPointerDown={(e) => e.stopPropagation()}
@@ -135,6 +123,7 @@ function SortableEntry({ entry, index, onDelete, onEdit }) {
           <line x1="14" y1="11" x2="14" y2="17" />
         </svg>
       </button>
+      </div>
     </div>
   )
 }
@@ -317,6 +306,17 @@ export default function App() {
   const [showModal, setShowModal] = useState(false)
   const [editingEntry, setEditingEntry] = useState(null)
 
+  const COLUMNS = 8
+
+  // Split entries into columns of COLUMNS entries each
+  const columns = (() => {
+    const result = []
+    for (let i = 0; i < entries.length; i += COLUMNS) {
+      result.push(entries.slice(i, i + COLUMNS))
+    }
+    return result
+  })()
+
   // Persist entries to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(entries))
@@ -403,15 +403,25 @@ export default function App() {
             </div>
           ) : (
             <>
-              <div className="entry-list">
-                {entries.map((entry, index) => (
-                  <SortableEntry
-                    key={entry.id}
-                    entry={entry}
-                    index={index}
-                    onDelete={handleDelete}
-                    onEdit={() => setEditingEntry(entry)}
-                  />
+              <div className="entry-columns">
+                {columns.map((column, colIndex) => (
+                  <>
+                  <div key={colIndex} className="entry-column">
+                    {column.map((entry, idx) => {
+                      const globalIndex = colIndex * COLUMNS + idx
+                      return (
+                        <SortableEntry
+                          key={entry.id}
+                          entry={entry}
+                          index={globalIndex}
+                          onDelete={handleDelete}
+                          onEdit={() => setEditingEntry(entry)}
+                        />
+                      )
+                    })}
+                  </div>
+                  {column.length === 8 ? (colIndex % 2 === 0 ? (<p className='separator-line-vertical'></p>) : (<p className='separator-line-horizontal'></p>)): console.log(column.length)}
+                  </>
                 ))}
               </div>
               <button className="reset-btn" onClick={handleResetClick}>
