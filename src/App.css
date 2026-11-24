@@ -341,6 +341,28 @@ body {
 }
 
 /* Reset button */
+.export-btn {
+  display: block;
+  margin: 1.5rem auto 0;
+  padding: 0.625rem 2rem;
+  background: linear-gradient(135deg, #7c3aed, #6366f1);
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+}
+
+.export-btn:hover {
+  opacity: 0.9;
+}
+
+.export-btn:active {
+  transform: scale(0.98);
+}
+
 .reset-btn {
   display: block;
   margin: 1.5rem auto 0;
